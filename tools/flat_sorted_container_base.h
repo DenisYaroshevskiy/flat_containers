@@ -32,10 +32,26 @@ struct sort_and_unique : private Compare {
   }
 };
 
-template <typename Compare, class UnderlyingType>
-class flat_sorted_container_base {
+template <typename Traits, class UnderlyingType>
+class flat_sorted_container_base : private Traits {
+  using traits = Traits;
+
+  struct traits_compare {
+    explicit traits_compare(traits tr) : tr_(tr) {}
+
+    template <typename Lhs, typename Rhs>
+    bool operator()(const Lhs& lhs, const Rhs& rhs) {
+      return tr_(lhs, rhs);
+    }
+
+   private:
+    traits tr_;
+  };
+
+  traits_compare traits_comp() { return traits_compare(*this); }
+
  public:
-  using compare = Compare;
+  using compare = Traits;
   using key_compare = compare;
   using value_compare = compare;
   using key_value_compare = compare;
@@ -60,7 +76,7 @@ class flat_sorted_container_base {
   using unsafe_region =
       std::unique_ptr<underlying_type, sort_and_unique<compare>>;
 
-  flat_sorted_container_base() {}
+  flat_sorted_container_base() = default;
 
   explicit flat_sorted_container_base(underlying_type body)
       : body_(std::move(body)) {
@@ -108,7 +124,7 @@ class flat_sorted_container_base {
 
   std::pair<iterator, bool> insert(value_type value) {
     auto pos = lower_bound(key_value_comp().key_from_value(value));
-    if (pos != end() && value_comp().equal(*pos, value))
+    if (pos != end() && Traits::equal(*pos, value))
       return std::make_pair(pos, false);
     return std::make_pair(body_.insert(pos, std::move(value)), true);
   }
@@ -121,12 +137,12 @@ class flat_sorted_container_base {
   template <class InputIt>
   void insert(InputIt first, InputIt last) {
     auto tail = body_.insert(body_.end(), first, last);
-    std::sort(tail, body_.end(), value_comp());
-    std::inplace_merge(body_.begin(), tail, body_.end(), value_comp());
+    std::sort(tail, body_.end(), traits_comp());
+    std::inplace_merge(body_.begin(), tail, body_.end(), traits_comp());
     body_.erase(
         std::unique(body_.begin(), body_.end(),
                     [this](const value_type& lhs, const value_type& rhs) {
-          return value_comp().equal(lhs, rhs);
+          return Traits::equal(lhs, rhs);
         }),
         body_.end());
   }
@@ -169,19 +185,19 @@ class flat_sorted_container_base {
 
   iterator find(const key_type& key) {
     auto pos = lower_bound(key);
-    if (pos == end() || !key_value_comp().equal(*pos, key))
+    if (pos == end() || !Traits::equal(*pos, key))
       return end();
     return pos;
   }
   const_iterator find(const key_type& key) const {
     auto pos = lower_bound(key);
-    if (pos == end() || !key_value_comp().equal(*pos, key))
+    if (pos == end() || !Traits::equal(*pos, key))
       return end();
     return pos;
   }
 
   std::pair<iterator, iterator> equal_range(const key_type& key) {
-    return std::equal_range(body_.begin(), body_.end(), key, key_value_comp());
+    return std::equal_range(body_.begin(), body_.end(), key, traits_comp());
   }
 
   std::pair<const_iterator, const_iterator> equal_range(
@@ -205,11 +221,11 @@ class flat_sorted_container_base {
     return std::upper_bound(body_.begin(), body_.end(), key, key_value_comp());
   }
 
-  key_compare key_comp() const { return key_compare(); }
+  key_compare key_comp() const { return traits(*this); }
 
-  value_compare value_comp() const { return value_compare(); }
+  value_compare value_comp() const { return traits(*this); }
 
-  key_value_compare key_value_comp() const { return key_value_compare(); }
+  key_value_compare key_value_comp() const { return traits(*this); }
 
   // regular-------------------------------------------------------------------
   // std::map defines it's comparators based on full value compares,

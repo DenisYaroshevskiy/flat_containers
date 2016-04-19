@@ -24,13 +24,15 @@ struct set_compare : private Compare {
   using Compare::operator();
 
   template <typename Lhs, typename Rhs>
-  bool equal(const Lhs& lhs, const Rhs& rhs) {
+  bool equal(const Lhs& lhs, const Rhs& rhs) const {
     return !operator()(lhs, rhs) && !operator()(rhs, lhs);
   }
 
-  const key_type& key_from_value(const value_type& value) { return value; }
+  const key_type& key_from_value(const value_type& value) const {
+    return value;
+  }
 
-  key_type& key_from_value(value_type& value) { return value; }  // NOLINT
+  key_type& key_from_value(value_type& value) const { return value; }  // NOLINT
 };
 
 }  // namespace internal

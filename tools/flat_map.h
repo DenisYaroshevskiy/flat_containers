@@ -23,20 +23,20 @@ struct map_compare : private Compare {
 
   using Compare::operator();
 
-  bool operator()(const value_type& lhs, const key_type& rhs) {
+  bool operator()(const value_type& lhs, const key_type& rhs) const {
     return operator()(lhs.first, rhs);
   }
 
-  bool operator()(const key_type& lhs, const value_type& rhs) {
+  bool operator()(const key_type& lhs, const value_type& rhs) const {
     return operator()(lhs, rhs.first);
   }
 
-  bool operator()(const value_type& lhs, const value_type& rhs) {
+  bool operator()(const value_type& lhs, const value_type& rhs) const {
     return operator()(lhs.first, rhs.first);
   }
 
   template <typename Lhs, typename Rhs>
-  bool equal(const Lhs& lhs, const Rhs& rhs) {
+  bool equal(const Lhs& lhs, const Rhs& rhs) const {
     return !operator()(lhs, rhs) && !operator()(rhs, lhs);
   }
 
