@@ -1,8 +1,8 @@
 // Copyright (c) 2016 Yandex. All rights reserved.
 // Author: Denis Yaroshevskiy <dyaroshev@yandex-team.ru>
 
-#include "flat_map.h"
-#include "flat_set.h"
+#include "tools/flat_map.h"
+#include "tools/flat_set.h"
 
 #include <algorithm>
 #include <iterator>
@@ -117,8 +117,8 @@ OptionalLogger EXPECT_GE(const Lhs& lhs, const Rhs& rhs) {
 
 }  // namespace
 
-using RegularFlatMap = base::flat_map<std::string, int>;
-using RegularFlatSet = base::flat_set<std::string>;
+using RegularFlatMap = tools::flat_map<std::string, int>;
+using RegularFlatSet = tools::flat_set<std::string>;
 
 std::vector<RegularFlatMap::value_type> RegularKeyValuePairs() {
   RegularFlatMap::value_type key_value_pairs[] = {

@@ -1,15 +1,15 @@
 // Copyright (c) 2016 Yandex. All rights reserved.
 // Author: Denis Yaroshevskiy <dyaroshev@yandex-team.ru>
 
-#ifndef BASE_YANDEX_FLAT_SORTED_CONTAINER_BASE_H_
-#define BASE_YANDEX_FLAT_SORTED_CONTAINER_BASE_H_
+#ifndef TOOLS_FLAT_SORTED_CONTAINER_BASE_H_
+#define TOOLS_FLAT_SORTED_CONTAINER_BASE_H_
 
 #include <algorithm>
 #include <memory>
 #include <utility>
 #include <cassert>
 
-namespace base {
+namespace tools {
 namespace internal {
 
 template <typename Compare>
@@ -258,6 +258,6 @@ class flat_sorted_container_base {
 
 }  // namespace internal
 
-}  // namespace base
+}  // namespace tools
 
-#endif  // BASE_YANDEX_FLAT_SORTED_CONTAINER_BASE_H_
+#endif  // TOOLS_FLAT_SORTED_CONTAINER_BASE_H_

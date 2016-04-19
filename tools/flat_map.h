@@ -1,8 +1,8 @@
 // Copyright (c) 2016 Yandex. All rights reserved.
 // Author: Denis Yaroshevskiy <dyaroshev@yandex-team.ru>
 
-#ifndef BASE_YANDEX_FLAT_MAP_H_
-#define BASE_YANDEX_FLAT_MAP_H_
+#ifndef TOOLS_FLAT_MAP_H_
+#define TOOLS_FLAT_MAP_H_
 
 #include <algorithm>
 #include <functional>
@@ -12,7 +12,7 @@
 
 #include "flat_sorted_container_base.h"
 
-namespace base {
+namespace tools {
 
 namespace internal {
 
@@ -100,6 +100,6 @@ class flat_map : public internal::flat_sorted_container_base<
   }
 };
 
-}  // namespace base
+}  // namespace tools
 
-#endif  // BASE_YANDEX_FLAT_MAP_H_
+#endif  // TOOLS_FLAT_MAP_H_

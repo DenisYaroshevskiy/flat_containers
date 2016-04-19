@@ -1,8 +1,8 @@
 // Copyright (c) 2016 Yandex. All rights reserved.
 // Author: Denis Yaroshevskiy <dyaroshev@yandex-team.ru>
 
-#ifndef BASE_YANDEX_FLAT_SET_H_
-#define BASE_YANDEX_FLAT_SET_H_
+#ifndef TOOLS_FLAT_SET_H_
+#define TOOLS_FLAT_SET_H_
 
 #include <algorithm>
 #include <functional>
@@ -12,7 +12,7 @@
 
 #include "flat_sorted_container_base.h"
 
-namespace base {
+namespace tools {
 
 namespace internal {
 
@@ -52,6 +52,6 @@ class flat_set : public internal::flat_sorted_container_base<
   using std_set = std::set<Key>;
 };
 
-}  // namespace base
+}  // namespace tools
 
-#endif  // BASE_YANDEX_FLAT_SET_H_
+#endif  // TOOLS_FLAT_SET_H_
