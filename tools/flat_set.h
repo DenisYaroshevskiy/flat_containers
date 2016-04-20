@@ -11,7 +11,8 @@ namespace tools {
 namespace internal {
 
 template <typename Key, class Compare>
-struct set_compare : private Compare {
+struct set_compare : private Compare,
+                     public unique_sorted_container<set_compare<Key, Compare>> {
   using key_type = Key;
   using value_type = Key;
 

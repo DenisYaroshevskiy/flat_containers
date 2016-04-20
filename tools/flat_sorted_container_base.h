@@ -9,6 +9,19 @@
 namespace tools {
 namespace internal {
 
+template <typename DerivedTraits>
+struct unique_sorted_container {
+  template <typename Cont>
+  void erase_non_unique(Cont& cont) {
+    cont.erase(std::unique(cont.begin(), cont.end(),
+                           [this](const auto& lhs, const auto& rhs) {
+                 DerivedTraits& tr = static_cast<DerivedTraits&>(*this);
+                 return tr.equal(lhs, rhs);
+               }),
+               cont.end());
+  }
+};
+
 template <typename Traits>
 struct sort_and_unique : public Traits {
   using traits = Traits;
@@ -25,11 +38,7 @@ struct sort_and_unique : public Traits {
       return traits::cmp(lhs, rhs);
     });
 
-    rhs->erase(std::unique(rhs->begin(), rhs->end(),
-                           [this](const auto& lhs, const auto& rhs) {
-                 return traits::equal(lhs, rhs);
-               }),
-               rhs->end());
+    Traits::erase_non_unique(*rhs);
   }
 };
 
