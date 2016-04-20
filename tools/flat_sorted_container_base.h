@@ -28,10 +28,9 @@ template <typename DerivedTraits>
 struct std_sort_traits {
   using traits = DerivedTraits;
 
-  template <typename Cont>
-  void sort_container(Cont& cont) {
-    std::sort(cont.begin(), cont.end(),
-              [this](const auto& lhs, const auto& rhs) {
+  template <typename It, typename Sent>
+  void sort_range(It first, Sent last) {
+    std::sort(first, last, [this](const auto& lhs, const auto& rhs) {
       traits& tr = static_cast<traits&>(*this);
       return tr.cmp(lhs, rhs);
     });
@@ -47,7 +46,7 @@ struct sort_and_unique : private Traits {
 
   template <typename Cont>
   void operator()(Cont* rhs) {
-    Traits::sort_container(*rhs);
+    Traits::sort_range(rhs->begin(), rhs->end());
     Traits::erase_non_unique(*rhs);
   }
 };
@@ -157,14 +156,9 @@ class flat_sorted_container_base : private Traits {
   template <class InputIt>
   void insert(InputIt first, InputIt last) {
     auto tail = body_.insert(body_.end(), first, last);
-    std::sort(tail, body_.end(), traits_comp());
+    traits::sort_range(tail, body_.end());
     std::inplace_merge(body_.begin(), tail, body_.end(), traits_comp());
-    body_.erase(
-        std::unique(body_.begin(), body_.end(),
-                    [this](const value_type& lhs, const value_type& rhs) {
-          return Traits::equal(lhs, rhs);
-        }),
-        body_.end());
+    traits::erase_non_unique(body_);
   }
 
   // void insert( std::initializer_list<value_type> ilist );
