@@ -1,8 +1,6 @@
 #ifndef TOOLS_FLAT_MAP_H_
 #define TOOLS_FLAT_MAP_H_
 
-#include <algorithm>
-#include <functional>
 #include <map>
 #include <utility>
 #include <vector>
@@ -18,32 +16,32 @@ struct map_compare : private Compare {
   using key_type = Key;
   using value_type = std::pair<key_type, T>;
 
-  using Compare::operator();
-
-  bool operator()(const value_type& lhs, const key_type& rhs) const {
-    return operator()(lhs.first, rhs);
+  bool cmp(const key_type& lhs, const key_type& rhs) const {
+    return Compare::operator()(lhs, rhs);
   }
 
-  bool operator()(const key_type& lhs, const value_type& rhs) const {
-    return operator()(lhs, rhs.first);
+  bool cmp(const value_type& lhs, const key_type& rhs) const {
+    return cmp(lhs.first, rhs);
   }
 
-  bool operator()(const value_type& lhs, const value_type& rhs) const {
-    return operator()(lhs.first, rhs.first);
+  bool cmp(const key_type& lhs, const value_type& rhs) const {
+    return cmp(lhs, rhs.first);
+  }
+
+  bool cmp(const value_type& lhs, const value_type& rhs) const {
+    return cmp(lhs.first, rhs.first);
   }
 
   template <typename Lhs, typename Rhs>
   bool equal(const Lhs& lhs, const Rhs& rhs) const {
-    return !operator()(lhs, rhs) && !operator()(rhs, lhs);
+    return !cmp(lhs, rhs) && !cmp(rhs, lhs);
   }
 
   const key_type& key_from_value(const value_type& value) {
     return value.first;
   }
 
-  key_type& key_from_value(value_type& value) {  // NOLINT
-    return value.first;
-  }
+  key_type& key_from_value(value_type& value) { return value.first; }
 };
 
 }  // namespace internal

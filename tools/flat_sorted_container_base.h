@@ -9,23 +9,27 @@
 namespace tools {
 namespace internal {
 
-template <typename Compare>
-struct sort_and_unique : private Compare {
+template <typename Traits>
+struct sort_and_unique : public Traits {
+  using traits = Traits;
+
+  // inheriting a constructor doesn't work for some reason
+  sort_and_unique(traits tr) : Traits(std::move(tr)) {}
+
   template <typename Cont>
   void operator()(Cont* rhs) {
     using value_type = typename Cont::value_type;
 
     std::sort(rhs->begin(), rhs->end(),
-              [this](const value_type& lhs, const value_type& rhs) {
-      return Compare::operator()(lhs, rhs);
+              [this](const auto& lhs, const auto& rhs) {
+      return traits::cmp(lhs, rhs);
     });
 
-    rhs->erase(
-        std::unique(rhs->begin(), rhs->end(),
-                    [this](const value_type& lhs, const value_type& rhs) {
-          return Compare::equal(lhs, rhs);
-        }),
-        rhs->end());
+    rhs->erase(std::unique(rhs->begin(), rhs->end(),
+                           [this](const auto& lhs, const auto& rhs) {
+                 return traits::equal(lhs, rhs);
+               }),
+               rhs->end());
   }
 };
 
@@ -38,14 +42,14 @@ class flat_sorted_container_base : private Traits {
 
     template <typename Lhs, typename Rhs>
     bool operator()(const Lhs& lhs, const Rhs& rhs) {
-      return tr_(lhs, rhs);
+      return tr_.cmp(lhs, rhs);
     }
 
    private:
     traits tr_;
   };
 
-  traits_compare traits_comp() { return traits_compare(*this); }
+  traits_compare traits_comp() const { return traits_compare(*this); }
 
  public:
   using compare = Traits;
@@ -71,7 +75,7 @@ class flat_sorted_container_base : private Traits {
 
   // scoped object to do operations on body, without keeping order
   using unsafe_region =
-      std::unique_ptr<underlying_type, sort_and_unique<compare>>;
+      std::unique_ptr<underlying_type, sort_and_unique<traits>>;
 
   flat_sorted_container_base() = default;
 
@@ -93,7 +97,7 @@ class flat_sorted_container_base : private Traits {
   //
   // if you know, that on exit of the region, storrage is already sorted and
   // unified - call unsafe_region::release()
-  unsafe_region unsafe_access() { return unsafe_region(&body_); }
+  unsafe_region unsafe_access() { return {&body_, *this}; }
 
   // get_allocator()
 
@@ -199,23 +203,23 @@ class flat_sorted_container_base : private Traits {
 
   std::pair<const_iterator, const_iterator> equal_range(
       const key_type& key) const {
-    return std::equal_range(body_.begin(), body_.end(), key, key_value_comp());
+    return std::equal_range(body_.begin(), body_.end(), key, traits_comp());
   }
 
   iterator lower_bound(const key_type& key) {
-    return std::lower_bound(body_.begin(), body_.end(), key, key_value_comp());
+    return std::lower_bound(body_.begin(), body_.end(), key, traits_comp());
   }
 
   const_iterator lower_bound(const key_type& key) const {
-    return std::lower_bound(body_.begin(), body_.end(), key, key_value_comp());
+    return std::lower_bound(body_.begin(), body_.end(), key, traits_comp());
   }
 
   iterator upper_bound(const key_type& key) {
-    return std::upper_bound(body_.begin(), body_.end(), key, key_value_comp());
+    return std::upper_bound(body_.begin(), body_.end(), key, traits_comp());
   }
 
   const_iterator upper_bound(const key_type& key) const {
-    return std::upper_bound(body_.begin(), body_.end(), key, key_value_comp());
+    return std::upper_bound(body_.begin(), body_.end(), key, traits_comp());
   }
 
   key_compare key_comp() const { return traits(*this); }

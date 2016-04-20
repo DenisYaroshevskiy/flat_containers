@@ -1,10 +1,7 @@
 #ifndef TOOLS_FLAT_SET_H_
 #define TOOLS_FLAT_SET_H_
 
-#include <algorithm>
-#include <functional>
 #include <set>
-#include <utility>
 #include <vector>
 
 #include "flat_sorted_container_base.h"
@@ -18,18 +15,20 @@ struct set_compare : private Compare {
   using key_type = Key;
   using value_type = Key;
 
-  using Compare::operator();
+  bool cmp(const key_type& lhs, const key_type& rhs) const {
+    return Compare::operator()(lhs, rhs);
+  }
 
   template <typename Lhs, typename Rhs>
   bool equal(const Lhs& lhs, const Rhs& rhs) const {
-    return !operator()(lhs, rhs) && !operator()(rhs, lhs);
+    return !cmp(lhs, rhs) && !cmp(rhs, lhs);
   }
 
   const key_type& key_from_value(const value_type& value) const {
     return value;
   }
 
-  key_type& key_from_value(value_type& value) const { return value; }  // NOLINT
+  key_type& key_from_value(value_type& value) const { return value; }
 };
 
 }  // namespace internal
