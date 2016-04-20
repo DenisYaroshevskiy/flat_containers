@@ -1,6 +1,3 @@
-// Copyright (c) 2016 Yandex. All rights reserved.
-// Author: Denis Yaroshevskiy <dyaroshev@yandex-team.ru>
-
 #ifndef TOOLS_FLAT_SORTED_CONTAINER_BASE_H_
 #define TOOLS_FLAT_SORTED_CONTAINER_BASE_H_
 
