@@ -12,7 +12,8 @@ namespace internal {
 
 template <typename Key, class Compare>
 struct set_compare : private Compare,
-                     public unique_sorted_container<set_compare<Key, Compare>> {
+                     public std_unique_traits<set_compare<Key, Compare>>,
+                     public std_sort_traits<set_compare<Key, Compare>> {
   using key_type = Key;
   using value_type = Key;
 

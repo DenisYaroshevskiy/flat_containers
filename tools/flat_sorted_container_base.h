@@ -10,20 +10,36 @@ namespace tools {
 namespace internal {
 
 template <typename DerivedTraits>
-struct unique_sorted_container {
+struct std_unique_traits {
+  using traits = DerivedTraits;
+
   template <typename Cont>
   void erase_non_unique(Cont& cont) {
     cont.erase(std::unique(cont.begin(), cont.end(),
                            [this](const auto& lhs, const auto& rhs) {
-                 DerivedTraits& tr = static_cast<DerivedTraits&>(*this);
+                 traits& tr = static_cast<traits&>(*this);
                  return tr.equal(lhs, rhs);
                }),
                cont.end());
   }
 };
 
+template <typename DerivedTraits>
+struct std_sort_traits {
+  using traits = DerivedTraits;
+
+  template <typename Cont>
+  void sort_container(Cont& cont) {
+    std::sort(cont.begin(), cont.end(),
+              [this](const auto& lhs, const auto& rhs) {
+      traits& tr = static_cast<traits&>(*this);
+      return tr.cmp(lhs, rhs);
+    });
+  }
+};
+
 template <typename Traits>
-struct sort_and_unique : public Traits {
+struct sort_and_unique : private Traits {
   using traits = Traits;
 
   // inheriting a constructor doesn't work for some reason
@@ -31,13 +47,7 @@ struct sort_and_unique : public Traits {
 
   template <typename Cont>
   void operator()(Cont* rhs) {
-    using value_type = typename Cont::value_type;
-
-    std::sort(rhs->begin(), rhs->end(),
-              [this](const auto& lhs, const auto& rhs) {
-      return traits::cmp(lhs, rhs);
-    });
-
+    Traits::sort_container(*rhs);
     Traits::erase_non_unique(*rhs);
   }
 };

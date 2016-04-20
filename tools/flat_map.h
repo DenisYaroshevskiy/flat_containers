@@ -14,7 +14,8 @@ namespace internal {
 template <typename Key, typename T, class Compare>
 struct map_compare
     : private Compare,
-      public unique_sorted_container<map_compare<Key, T, Compare>> {
+      public std_unique_traits<map_compare<Key, T, Compare>>,
+      public std_sort_traits<map_compare<Key, T, Compare>> {
   using key_type = Key;
   using value_type = std::pair<key_type, T>;
 
